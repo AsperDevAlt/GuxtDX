@@ -221,7 +221,7 @@ BOOL LoadPximg(const char *file_name, int surf_no)
     char path[268]; // [esp+0h] [ebp-110h] BYREF
 
     sprintf(path, "%s.pximg", file_name);
-    return MakeSurface_Pximg(path, surf_no, 1, 0);
+    return MakeSurface_Pximg(path, surf_no, 2, 0);
 }
 
 BOOL GameReset;            // weak
@@ -260,7 +260,7 @@ void PutFramePerSecond()
     rect.top = 8;
     rect.right = 128;
     rect.bottom = 16;
-    if (value == 50)
+    if (value == 60)
         PutBitmap3(&scWOffset_0, scWOffset_0.right - 16, 3, &rect, 11);
     else
         PutNumber(&scWOffset_0, scWOffset_0.right - 16, 3, value, 2, 0);
