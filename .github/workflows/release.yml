@@ -1,0 +1,67 @@
+name: Release
+
+on:
+  push:
+    paths:
+      - src/**
+      - res/**
+
+jobs:
+  build-windows-x64:
+    runs-on: windows-latest
+
+    steps:
+      - name: Cache Cargo registry
+        uses: actions/cache@v2
+        with:
+          path: ~/.cargo/registry
+          key: ${{ runner.os }}-stable-cargo-registry
+          restore-keys: |
+            ${{ runner.os }}-stable-cargo-registry-
+
+      - name: Cache Cargo index
+        uses: actions/cache@v2
+        with:
+          path: ~/.cargo/git
+          key: ${{ runner.os }}-stable-cargo-index
+          restore-keys: |
+            ${{ runner.os }}-stable-cargo-index-
+
+      - name: Cache Cargo build
+        uses: actions/cache@v2
+        with:
+          path: target
+          key: ${{ runner.os }}-stable-target
+          restore-keys: |
+            ${{ runner.os }}-stable-target
+
+      - name: Checkout sources
+        uses: actions/checkout@v2
+
+      - name: Install latest stable Rust toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          default: true
+          override: true
+
+      - name: Build
+        run: cargo build --all --release
+
+      - name: Copy executable to root directory
+        run: cp target/release/doukutsu-rs.exe doukutsu-rs.x86_64.exe
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: doukutsu-rs_windows_x64
+          path: doukutsu-rs.x86_64.exe
+          if-no-files-found: error
+
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: doukutsu-rs.x86_64.exe
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
